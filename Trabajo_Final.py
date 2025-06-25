@@ -3902,3 +3902,37 @@
  "nbformat": 4,
  "nbformat_minor": 4
 }
+
+
+st.set_page_config(page_title="Análisis de Default", layout="wide")
+
+# Título
+st.title("Análisis de Tarjetas de Crédito")
+
+# Carga de datos
+@st.cache_data
+def cargar_datos():
+    return df
+
+df = cargar_datos()
+
+# Vista previa
+st.subheader("Vista previa de los datos")
+st.dataframe(df.head())
+
+# Estadísticas generales
+st.subheader("Estadísticas generales")
+st.write(df.describe())
+
+# Análisis de variables PAY_1 a PAY_6
+st.subheader("Distribución de pagos")
+col = st.selectbox("Seleccioná una variable de pago:", ['PAY_1', 'PAY_2', 'PAY_3', 'PAY_4', 'PAY_5', 'PAY_6'])
+
+fig, ax = plt.subplots()
+sns.histplot(df[col], kde=False, bins=10, ax=ax)
+ax.set_title(f"Histograma de {col}")
+st.pyplot(fig)
+
+# Valor por defecto
+st.subheader("Proporción de clientes con default")
+st.bar_chart(df['default payment next month'].value_counts(normalize=True))

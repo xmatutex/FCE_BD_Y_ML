@@ -2,7 +2,7 @@
  "cells": [
   {
    "cell_type": "code",
-   "execution_count": 117,
+   "execution_count": 95,
    "metadata": {
     "id": "PMWAK-kDhpqC"
    },
@@ -18,7 +18,8 @@
     "import xgboost as xgb\n",
     "import xgboost as xgb\n",
     "import matplotlib.pyplot as plt\n",
-    "from sklearn.linear_model import LinearRegression"
+    "from sklearn.linear_model import LinearRegression\n",
+    "import joblib"
    ]
   },
   {
@@ -32,7 +33,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 118,
+   "execution_count": 96,
    "metadata": {
     "id": "_nHS2tQNhhJs"
    },
@@ -48,28 +49,51 @@
     "*Descripcion de las columnas*\n",
     "\n",
     "LIMIT_BAL: Amount of given credit in NT dollars (includes individual and family/supplementary credit)\n",
+    "\n",
     "SEX: Gender (1=male, 2=female)\n",
+    "\n",
     "EDUCATION: (1=graduate school, 2=university, 3=high school, 4=others, 5=unknown, 6=unknown)\n",
+    "\n",
     "MARRIAGE: Marital status (1=married, 2=single, 3=others)\n",
+    "\n",
     "AGE: Age in years\n",
-    "PAY_1: Repayment status in September, 2005 (-1=pay duly, 1=payment delay for one month, 2=payment delay for two months, ... 8=payment delay for eight months, 9=payment delay for nine months and above)\n",
+    "\n",
+    "PAY_1: Repayment status in September, 2005 ( 0=pay duly, 1=payment delay for one month, 2=payment delay for two months, ... 8=payment delay for eight months, 9=payment delay for nine months and above)\n",
+    "\n",
     "PAY_2: Repayment status in August, 2005 (scale same as above)\n",
+    "\n",
     "PAY_3: Repayment status in July, 2005 (scale same as above)\n",
+    "\n",
     "PAY_4: Repayment status in June, 2005 (scale same as above)\n",
+    "\n",
     "PAY_5: Repayment status in May, 2005 (scale same as above)\n",
+    "\n",
     "PAY_6: Repayment status in April, 2005 (scale same as above)\n",
+    "\n",
     "BILL_AMT1: Amount of bill statement in September, 2005 (NT dollar)\n",
+    "\n",
     "BILL_AMT2: Amount of bill statement in August, 2005 (NT dollar)\n",
+    "\n",
     "BILL_AMT3: Amount of bill statement in July, 2005 (NT dollar)\n",
+    "\n",
     "BILL_AMT4: Amount of bill statement in June, 2005 (NT dollar)\n",
+    "\n",
     "BILL_AMT5: Amount of bill statement in May, 2005 (NT dollar)\n",
+    "\n",
     "BILL_AMT6: Amount of bill statement in April, 2005 (NT dollar)\n",
+    "\n",
     "PAY_AMT1: Amount of previous payment in September, 2005 (NT dollar)\n",
+    "\n",
     "PAY_AMT2: Amount of previous payment in August, 2005 (NT dollar)\n",
+    "\n",
     "PAY_AMT3: Amount of previous payment in July, 2005 (NT dollar)\n",
+    "\n",
     "PAY_AMT4: Amount of previous payment in June, 2005 (NT dollar)\n",
+    "\n",
     "PAY_AMT5: Amount of previous payment in May, 2005 (NT dollar)\n",
+    "\n",
     "PAY_AMT6: Amount of previous payment in April, 2005 (NT dollar)\n",
+    "\n",
     "default.payment.next.month: Default payment (1=yes, 0=no)"
    ]
   },
@@ -84,7 +108,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 119,
+   "execution_count": 97,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/"
@@ -147,7 +171,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 120,
+   "execution_count": 98,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/",
@@ -514,7 +538,7 @@
        "[30000 rows x 25 columns]"
       ]
      },
-     "execution_count": 120,
+     "execution_count": 98,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -528,7 +552,317 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 121,
+   "execution_count": 99,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>ID</th>\n",
+       "      <th>LIMIT_BAL</th>\n",
+       "      <th>SEX</th>\n",
+       "      <th>EDUCATION</th>\n",
+       "      <th>MARRIAGE</th>\n",
+       "      <th>AGE</th>\n",
+       "      <th>PAY_0</th>\n",
+       "      <th>PAY_2</th>\n",
+       "      <th>PAY_3</th>\n",
+       "      <th>PAY_4</th>\n",
+       "      <th>...</th>\n",
+       "      <th>BILL_AMT4</th>\n",
+       "      <th>BILL_AMT5</th>\n",
+       "      <th>BILL_AMT6</th>\n",
+       "      <th>PAY_AMT1</th>\n",
+       "      <th>PAY_AMT2</th>\n",
+       "      <th>PAY_AMT3</th>\n",
+       "      <th>PAY_AMT4</th>\n",
+       "      <th>PAY_AMT5</th>\n",
+       "      <th>PAY_AMT6</th>\n",
+       "      <th>default payment next month</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>3.000000e+04</td>\n",
+       "      <td>30000.00000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>15000.500000</td>\n",
+       "      <td>167484.322667</td>\n",
+       "      <td>1.603733</td>\n",
+       "      <td>1.853133</td>\n",
+       "      <td>1.551867</td>\n",
+       "      <td>35.485500</td>\n",
+       "      <td>-0.016700</td>\n",
+       "      <td>-0.133767</td>\n",
+       "      <td>-0.166200</td>\n",
+       "      <td>-0.220667</td>\n",
+       "      <td>...</td>\n",
+       "      <td>43262.948967</td>\n",
+       "      <td>40311.400967</td>\n",
+       "      <td>38871.760400</td>\n",
+       "      <td>5663.580500</td>\n",
+       "      <td>5.921163e+03</td>\n",
+       "      <td>5225.68150</td>\n",
+       "      <td>4826.076867</td>\n",
+       "      <td>4799.387633</td>\n",
+       "      <td>5215.502567</td>\n",
+       "      <td>0.221200</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>8660.398374</td>\n",
+       "      <td>129747.661567</td>\n",
+       "      <td>0.489129</td>\n",
+       "      <td>0.790349</td>\n",
+       "      <td>0.521970</td>\n",
+       "      <td>9.217904</td>\n",
+       "      <td>1.123802</td>\n",
+       "      <td>1.197186</td>\n",
+       "      <td>1.196868</td>\n",
+       "      <td>1.169139</td>\n",
+       "      <td>...</td>\n",
+       "      <td>64332.856134</td>\n",
+       "      <td>60797.155770</td>\n",
+       "      <td>59554.107537</td>\n",
+       "      <td>16563.280354</td>\n",
+       "      <td>2.304087e+04</td>\n",
+       "      <td>17606.96147</td>\n",
+       "      <td>15666.159744</td>\n",
+       "      <td>15278.305679</td>\n",
+       "      <td>17777.465775</td>\n",
+       "      <td>0.415062</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>10000.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>21.000000</td>\n",
+       "      <td>-2.000000</td>\n",
+       "      <td>-2.000000</td>\n",
+       "      <td>-2.000000</td>\n",
+       "      <td>-2.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>-170000.000000</td>\n",
+       "      <td>-81334.000000</td>\n",
+       "      <td>-339603.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.00000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>7500.750000</td>\n",
+       "      <td>50000.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>28.000000</td>\n",
+       "      <td>-1.000000</td>\n",
+       "      <td>-1.000000</td>\n",
+       "      <td>-1.000000</td>\n",
+       "      <td>-1.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>2326.750000</td>\n",
+       "      <td>1763.000000</td>\n",
+       "      <td>1256.000000</td>\n",
+       "      <td>1000.000000</td>\n",
+       "      <td>8.330000e+02</td>\n",
+       "      <td>390.00000</td>\n",
+       "      <td>296.000000</td>\n",
+       "      <td>252.500000</td>\n",
+       "      <td>117.750000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>15000.500000</td>\n",
+       "      <td>140000.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>34.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>19052.000000</td>\n",
+       "      <td>18104.500000</td>\n",
+       "      <td>17071.000000</td>\n",
+       "      <td>2100.000000</td>\n",
+       "      <td>2.009000e+03</td>\n",
+       "      <td>1800.00000</td>\n",
+       "      <td>1500.000000</td>\n",
+       "      <td>1500.000000</td>\n",
+       "      <td>1500.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>22500.250000</td>\n",
+       "      <td>240000.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>41.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>54506.000000</td>\n",
+       "      <td>50190.500000</td>\n",
+       "      <td>49198.250000</td>\n",
+       "      <td>5006.000000</td>\n",
+       "      <td>5.000000e+03</td>\n",
+       "      <td>4505.00000</td>\n",
+       "      <td>4013.250000</td>\n",
+       "      <td>4031.500000</td>\n",
+       "      <td>4000.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>1000000.000000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>6.000000</td>\n",
+       "      <td>3.000000</td>\n",
+       "      <td>79.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>891586.000000</td>\n",
+       "      <td>927171.000000</td>\n",
+       "      <td>961664.000000</td>\n",
+       "      <td>873552.000000</td>\n",
+       "      <td>1.684259e+06</td>\n",
+       "      <td>896040.00000</td>\n",
+       "      <td>621000.000000</td>\n",
+       "      <td>426529.000000</td>\n",
+       "      <td>528666.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>8 rows × 25 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "                 ID       LIMIT_BAL           SEX     EDUCATION      MARRIAGE  \\\n",
+       "count  30000.000000    30000.000000  30000.000000  30000.000000  30000.000000   \n",
+       "mean   15000.500000   167484.322667      1.603733      1.853133      1.551867   \n",
+       "std     8660.398374   129747.661567      0.489129      0.790349      0.521970   \n",
+       "min        1.000000    10000.000000      1.000000      0.000000      0.000000   \n",
+       "25%     7500.750000    50000.000000      1.000000      1.000000      1.000000   \n",
+       "50%    15000.500000   140000.000000      2.000000      2.000000      2.000000   \n",
+       "75%    22500.250000   240000.000000      2.000000      2.000000      2.000000   \n",
+       "max    30000.000000  1000000.000000      2.000000      6.000000      3.000000   \n",
+       "\n",
+       "                AGE         PAY_0         PAY_2         PAY_3         PAY_4  \\\n",
+       "count  30000.000000  30000.000000  30000.000000  30000.000000  30000.000000   \n",
+       "mean      35.485500     -0.016700     -0.133767     -0.166200     -0.220667   \n",
+       "std        9.217904      1.123802      1.197186      1.196868      1.169139   \n",
+       "min       21.000000     -2.000000     -2.000000     -2.000000     -2.000000   \n",
+       "25%       28.000000     -1.000000     -1.000000     -1.000000     -1.000000   \n",
+       "50%       34.000000      0.000000      0.000000      0.000000      0.000000   \n",
+       "75%       41.000000      0.000000      0.000000      0.000000      0.000000   \n",
+       "max       79.000000      8.000000      8.000000      8.000000      8.000000   \n",
+       "\n",
+       "       ...      BILL_AMT4      BILL_AMT5      BILL_AMT6       PAY_AMT1  \\\n",
+       "count  ...   30000.000000   30000.000000   30000.000000   30000.000000   \n",
+       "mean   ...   43262.948967   40311.400967   38871.760400    5663.580500   \n",
+       "std    ...   64332.856134   60797.155770   59554.107537   16563.280354   \n",
+       "min    ... -170000.000000  -81334.000000 -339603.000000       0.000000   \n",
+       "25%    ...    2326.750000    1763.000000    1256.000000    1000.000000   \n",
+       "50%    ...   19052.000000   18104.500000   17071.000000    2100.000000   \n",
+       "75%    ...   54506.000000   50190.500000   49198.250000    5006.000000   \n",
+       "max    ...  891586.000000  927171.000000  961664.000000  873552.000000   \n",
+       "\n",
+       "           PAY_AMT2      PAY_AMT3       PAY_AMT4       PAY_AMT5  \\\n",
+       "count  3.000000e+04   30000.00000   30000.000000   30000.000000   \n",
+       "mean   5.921163e+03    5225.68150    4826.076867    4799.387633   \n",
+       "std    2.304087e+04   17606.96147   15666.159744   15278.305679   \n",
+       "min    0.000000e+00       0.00000       0.000000       0.000000   \n",
+       "25%    8.330000e+02     390.00000     296.000000     252.500000   \n",
+       "50%    2.009000e+03    1800.00000    1500.000000    1500.000000   \n",
+       "75%    5.000000e+03    4505.00000    4013.250000    4031.500000   \n",
+       "max    1.684259e+06  896040.00000  621000.000000  426529.000000   \n",
+       "\n",
+       "            PAY_AMT6  default payment next month  \n",
+       "count   30000.000000                30000.000000  \n",
+       "mean     5215.502567                    0.221200  \n",
+       "std     17777.465775                    0.415062  \n",
+       "min         0.000000                    0.000000  \n",
+       "25%       117.750000                    0.000000  \n",
+       "50%      1500.000000                    0.000000  \n",
+       "75%      4000.000000                    0.000000  \n",
+       "max    528666.000000                    1.000000  \n",
+       "\n",
+       "[8 rows x 25 columns]"
+      ]
+     },
+     "execution_count": 99,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 100,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/"
@@ -548,7 +882,7 @@
        "      dtype='object')"
       ]
      },
-     "execution_count": 121,
+     "execution_count": 100,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -561,12 +895,12 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "#Creo alguno ploteos de las variables de clasificacion para ver si alguna tiene outlayers y no generen overfiteo a la hora de modelar"
+    "Creo alguno ploteos de las variables de clasificacion para ver si alguna tiene outlayers y no generen overfiteo a la hora de modelar"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 122,
+   "execution_count": 101,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/",
@@ -582,7 +916,7 @@
        "<Axes: xlabel='SEX'>"
       ]
      },
-     "execution_count": 122,
+     "execution_count": 101,
      "metadata": {},
      "output_type": "execute_result"
     },
@@ -603,7 +937,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 123,
+   "execution_count": 102,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/",
@@ -619,7 +953,7 @@
        "<Axes: ylabel='EDUCATION'>"
       ]
      },
-     "execution_count": 123,
+     "execution_count": 102,
      "metadata": {},
      "output_type": "execute_result"
     },
@@ -647,7 +981,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 124,
+   "execution_count": 103,
    "metadata": {},
    "outputs": [
     {
@@ -656,7 +990,7 @@
        "<Axes: ylabel='EDUCATION'>"
       ]
      },
-     "execution_count": 124,
+     "execution_count": 103,
      "metadata": {},
      "output_type": "execute_result"
     },
@@ -679,7 +1013,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 125,
+   "execution_count": 104,
    "metadata": {},
    "outputs": [
     {
@@ -688,7 +1022,7 @@
        "<Axes: xlabel='MARRIAGE'>"
       ]
      },
-     "execution_count": 125,
+     "execution_count": 104,
      "metadata": {},
      "output_type": "execute_result"
     },
@@ -716,7 +1050,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 126,
+   "execution_count": 105,
    "metadata": {},
    "outputs": [
     {
@@ -725,7 +1059,7 @@
        "<Axes: xlabel='MARRIAGE'>"
       ]
      },
-     "execution_count": 126,
+     "execution_count": 105,
      "metadata": {},
      "output_type": "execute_result"
     },
@@ -749,12 +1083,12 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "#Ahora ploteo las varibales numericas"
+    "Ahora ploteo las varibales numericas"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 127,
+   "execution_count": 106,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -764,13 +1098,13 @@
     "        ax=fig.add_subplot(n_rows,n_cols,i+1)\n",
     "        df[var_name].hist(bins=n_bins,ax=ax)\n",
     "        ax.set_title(var_name)\n",
-    "    fig.tight_layout()  # Improves appearance a bit.\n",
+    "    fig.tight_layout() \n",
     "    plt.show()"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 128,
+   "execution_count": 107,
    "metadata": {},
    "outputs": [
     {
@@ -791,7 +1125,149 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 129,
+   "execution_count": 108,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>BILL_AMT1</th>\n",
+       "      <th>BILL_AMT2</th>\n",
+       "      <th>BILL_AMT3</th>\n",
+       "      <th>BILL_AMT4</th>\n",
+       "      <th>BILL_AMT5</th>\n",
+       "      <th>BILL_AMT6</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>3.000000e+04</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>51223.330900</td>\n",
+       "      <td>49179.075167</td>\n",
+       "      <td>4.701315e+04</td>\n",
+       "      <td>43262.948967</td>\n",
+       "      <td>40311.400967</td>\n",
+       "      <td>38871.760400</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>73635.860576</td>\n",
+       "      <td>71173.768783</td>\n",
+       "      <td>6.934939e+04</td>\n",
+       "      <td>64332.856134</td>\n",
+       "      <td>60797.155770</td>\n",
+       "      <td>59554.107537</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>-165580.000000</td>\n",
+       "      <td>-69777.000000</td>\n",
+       "      <td>-1.572640e+05</td>\n",
+       "      <td>-170000.000000</td>\n",
+       "      <td>-81334.000000</td>\n",
+       "      <td>-339603.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>3558.750000</td>\n",
+       "      <td>2984.750000</td>\n",
+       "      <td>2.666250e+03</td>\n",
+       "      <td>2326.750000</td>\n",
+       "      <td>1763.000000</td>\n",
+       "      <td>1256.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>22381.500000</td>\n",
+       "      <td>21200.000000</td>\n",
+       "      <td>2.008850e+04</td>\n",
+       "      <td>19052.000000</td>\n",
+       "      <td>18104.500000</td>\n",
+       "      <td>17071.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>67091.000000</td>\n",
+       "      <td>64006.250000</td>\n",
+       "      <td>6.016475e+04</td>\n",
+       "      <td>54506.000000</td>\n",
+       "      <td>50190.500000</td>\n",
+       "      <td>49198.250000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>964511.000000</td>\n",
+       "      <td>983931.000000</td>\n",
+       "      <td>1.664089e+06</td>\n",
+       "      <td>891586.000000</td>\n",
+       "      <td>927171.000000</td>\n",
+       "      <td>961664.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "           BILL_AMT1      BILL_AMT2     BILL_AMT3      BILL_AMT4  \\\n",
+       "count   30000.000000   30000.000000  3.000000e+04   30000.000000   \n",
+       "mean    51223.330900   49179.075167  4.701315e+04   43262.948967   \n",
+       "std     73635.860576   71173.768783  6.934939e+04   64332.856134   \n",
+       "min   -165580.000000  -69777.000000 -1.572640e+05 -170000.000000   \n",
+       "25%      3558.750000    2984.750000  2.666250e+03    2326.750000   \n",
+       "50%     22381.500000   21200.000000  2.008850e+04   19052.000000   \n",
+       "75%     67091.000000   64006.250000  6.016475e+04   54506.000000   \n",
+       "max    964511.000000  983931.000000  1.664089e+06  891586.000000   \n",
+       "\n",
+       "           BILL_AMT5      BILL_AMT6  \n",
+       "count   30000.000000   30000.000000  \n",
+       "mean    40311.400967   38871.760400  \n",
+       "std     60797.155770   59554.107537  \n",
+       "min    -81334.000000 -339603.000000  \n",
+       "25%      1763.000000    1256.000000  \n",
+       "50%     18104.500000   17071.000000  \n",
+       "75%     50190.500000   49198.250000  \n",
+       "max    927171.000000  961664.000000  "
+      ]
+     },
+     "execution_count": 108,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df[['BILL_AMT1','BILL_AMT2', 'BILL_AMT3', 'BILL_AMT4', 'BILL_AMT5', 'BILL_AMT6']].describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 109,
    "metadata": {},
    "outputs": [
     {
@@ -812,7 +1288,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 130,
+   "execution_count": 110,
    "metadata": {},
    "outputs": [
     {
@@ -839,7 +1315,7 @@
     "PAY_N es el numero de meses que el individuo esta atrasado con su pago\n",
     "\n",
     "Como tenemos que :\n",
-    "PAY_1: Repayment status in September, 2005 (-1=pay duly, 1=payment delay for one month, 2=payment delay for two months, ... 8=payment delay for eight months, 9=payment delay for nine months and above)\n",
+    "PAY_1: Repayment status in September, 2005 (0=pay duly, 1=payment delay for one month, 2=payment delay for two months, ... 8=payment delay for eight months, 9=payment delay for nine months and above)\n",
     "PAY_2: Repayment status in August, 2005 (scale same as above)\n",
     "PAY_3: Repayment status in July, 2005 (scale same as above)\n",
     "PAY_4: Repayment status in June, 2005 (scale same as above)\n",
@@ -851,7 +1327,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 131,
+   "execution_count": 111,
    "metadata": {},
    "outputs": [
     {
@@ -891,7 +1367,233 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 132,
+   "execution_count": 112,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>PAY_1</th>\n",
+       "      <th>PAY_2</th>\n",
+       "      <th>PAY_3</th>\n",
+       "      <th>PAY_4</th>\n",
+       "      <th>PAY_5</th>\n",
+       "      <th>PAY_6</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.00000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>0.356767</td>\n",
+       "      <td>0.320033</td>\n",
+       "      <td>0.304067</td>\n",
+       "      <td>0.258767</td>\n",
+       "      <td>0.22150</td>\n",
+       "      <td>0.226567</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>0.760594</td>\n",
+       "      <td>0.801727</td>\n",
+       "      <td>0.790589</td>\n",
+       "      <td>0.761113</td>\n",
+       "      <td>0.71772</td>\n",
+       "      <td>0.715438</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.00000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.00000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.00000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.00000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.00000</td>\n",
+       "      <td>8.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "              PAY_1         PAY_2         PAY_3         PAY_4        PAY_5  \\\n",
+       "count  30000.000000  30000.000000  30000.000000  30000.000000  30000.00000   \n",
+       "mean       0.356767      0.320033      0.304067      0.258767      0.22150   \n",
+       "std        0.760594      0.801727      0.790589      0.761113      0.71772   \n",
+       "min        0.000000      0.000000      0.000000      0.000000      0.00000   \n",
+       "25%        0.000000      0.000000      0.000000      0.000000      0.00000   \n",
+       "50%        0.000000      0.000000      0.000000      0.000000      0.00000   \n",
+       "75%        0.000000      0.000000      0.000000      0.000000      0.00000   \n",
+       "max        8.000000      8.000000      8.000000      8.000000      8.00000   \n",
+       "\n",
+       "              PAY_6  \n",
+       "count  30000.000000  \n",
+       "mean       0.226567  \n",
+       "std        0.715438  \n",
+       "min        0.000000  \n",
+       "25%        0.000000  \n",
+       "50%        0.000000  \n",
+       "75%        0.000000  \n",
+       "max        8.000000  "
+      ]
+     },
+     "execution_count": 112,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df[['PAY_1','PAY_2','PAY_3','PAY_4','PAY_5','PAY_6']].describe()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Me figura que el maximo de meses que se llego a audedar es de 8, pero en el grafico no los veo\n",
+    "\n",
+    "Creo un boxplot para ver si tengo muchos outliers"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 113,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAAioAAAHHCAYAAACRAnNyAAAAOnRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjEwLjMsIGh0dHBzOi8vbWF0cGxvdGxpYi5vcmcvZiW1igAAAAlwSFlzAAAPYQAAD2EBqD+naQAAS21JREFUeJzt3Qm8jHX///GPXdbSQkQUkvbVjULZknZxtyi0ahNu1a0NbWhXiYRWbj8VKaEoJ3elEu1FtFFIdVuzM//H+/t/XNM1c2bOOXNczlwz5/V8PMa4lpm55nOu5TPf7SoRiUQiBgAAEEIl070BAAAAyZCoAACA0CJRAQAAoUWiAgAAQotEBQAAhBaJCgAACC0SFQAAEFokKgAAILRIVAAAQGiRqCChEiVK2MCBA9P2+d27d7e6detacVMUcf/pp5/c5zz77LO79XOQXSZOnGjVqlWzDRs2WHHXqlUr9wjDMXXBBRdYly5dLJuRqBQx7cjaof2P/fbbz0455RSbPn26ZbpvvvnGXWh14GaradOmpTWJA4rajh07bMCAAXbDDTdYpUqVrDjIlHPZLbfcYq+88op9/vnnlq1IVNLkrrvushdeeMGef/55u/nmm+3333+3008/3aZOnWqZfnAPGjQo9Af3riYq+o5AcfH666/bokWL7KqrrrLiIpVz2YEHHmibNm2ySy65xIraMcccY8cff7w99NBDlq1IVNKkQ4cO1rVrV7dj9+vXz/773/9amTJl7D//+U+6Nw1AgHbu3GmbN2+2TPbMM89Y8+bNrVatWunelFBSyXj58uWtVKlSgbzfX3/9ldL6Xbp0sUmTJmVttRyJSkjsueeetscee1jp0qVz7bD/+te/rHbt2lauXDk75JBD7MEHHzTvptfK4hs1auQe+r/nf//7n+2///7WrFkzV2zrtftQse0PP/xg7du3t4oVK1rNmjVd6U5BbqL96aefugSrSpUq7n1at25tH374YUy1VufOnd3/VZXlVW3l5OTk+b6vvvqqHX744e5A1/PkyZOTnvAfffRRO+yww9y61atXt6uvvtpWr15tBbFw4UI7//zzXT27Xq9fIa+99lrMOtu2bXO/oho0aODW2Xvvve2kk06ymTNnRmM4fPhw939/9Z1HfxvFXK/T3/O4446zl19+Ode2bNmyxfr06WP77ruvVa5c2c466yz75ZdfChX3vKxZs8Ztc9WqVd0+1q1bNzevsPFJxKuf13d/5JFH3K9LffeWLVvaV199FbPuF1984bbnoIMOcp9Ro0YNu+yyy+zPP//M9b7ab7QNWu/ggw+2p556yhXF++Mt27dvt7vvvtuto2NEbZtuvfVWF+P8pHJM5HcserR9119/vY0bN87tq1p3xowZSbdB23vGGWdEv69id8QRR0SPG12ANK04aH/S/rA79u1klGRp+9u0aZNw+YsvvmgnnniiVahQwfbaay9r0aKFvfXWWzHrPPnkk9FYKL7XXXddrv1QbT50/KskQ+cPvZ8So/vvv98KoqD7QbJ2YFpf+0NhzmXJ2qgU5O/iNQd499137dprr3VNAQ444AC3bP369da7d2+3bfpOWta2bVtbsGBBzHtonvbP/P6WGSuCIvXMM8/orBaZNWtW5Pfff4+sWrUq8tVXX0WuvvrqSMmSJSNvvfVWdN2dO3dGTj311EiJEiUiV1xxReSJJ56InHnmme71vXv3jq734YcfRkqVKhXp06dPdN4FF1wQ2WOPPSKLFi2KzuvWrVukfPnykQYNGkQuueQS935nnHGGe7877rgjZjs1b8CAAdFpbWPFihUj+++/f+Tuu++ODBkyJFKvXr1IuXLl3OfL999/H+nVq5d77a233hp54YUX3GPlypVJ4/Hmm2+673344YdHHn744chtt90WqVq1auSwww6LHHjggTHrKgalS5eOXHnllZGRI0dGbrnlFrdNJ5xwQmTr1q15xl3br/dt3LhxZOjQoe67t2jRwsV20qRJ0fW03Zqnz3j66acjDz30UOTCCy9031c++OCDSNu2bd139L6fHp4DDjggcu2117r31/c58cQT3bpTp06N2Z6uXbu6+RdddJFb97zzzosceeSRhYp7Mtp/9B0VX23T448/7vYn73O0L6Yan0R+/PFH935HHHFEpG7duu71gwYNilSrVi2y7777xvz9H3zwwcjJJ58cueuuuyKjRo2K3HjjjW4/VZy0vZ4FCxa476j303e+9957IzVr1owcddRR7rP8tF9r3vnnnx8ZPnx45NJLL3XT55xzTp7bncoxUdBjUTTv0EMPdd9dcdA2ffrpp0m3Qfv5IYcc4v7GAwcOjDzyyCORWrVqRSpVqhR58cUXI3Xq1HEx0EN/o/r160d27NgR+L6dzHvvvee+02uvvZZr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4zs4W7NwvywR0S0M07hzDhw40F588UVbuXKlC2r37t3t9ttvL9CwurpXQNWqVW3t2rWhG0K/VatWSZfl5OQU6bZkujlz5tiTTz7p9hFPjRo17Nprr7UWLVqkddsyzW233Wbvv/9+rvnNmze3e++9Ny3blIlGjhxpL730kjuHeXRh7dy5s/Xs2TOt25ZpOL6L5365LoXrd1qrfoYOHWojRoywJ554wr799ls3ff/999vjjz9umSw+SWnfvn2ey5H3SWzAgAF20EEH2fDhw23atGnuWdOar+VILUkpU6aMXXTRRe4Hgp41rflajoJdDCZMmOBOrv369bNXXnnFPWta87UcBcPxHZyRWbxfprVE5YwzzrDq1avbmDFjovM6derkiqF1Es3EEhV/dc+oUaOsYcOG0WXfffedXXXVVe7/VAPlT78KLr74YnfSuueee6xkyb/z6p07d7qStx9//NHtKxQT51/d06FDB5eUvPHGGzFFwSoq7tixo23bts2mT59ONVAeFCvFUecb/XItXfrv2vPt27e7X646LymOmV7cvrtxfBfv/XJdppSoNGvWzN5++213AZfPP//c3nvvPRfwRLZs2eK+nP8RNv42Kf4kJX7avx6SJ30qDtbJzH8SE01r/ooVK9x6yJvapIhOWPEnKk2ff/75MeshMdX96wJ7+eWXx1wMRNOXXXaZW671kDeO7+BMyfL9Mq2Jyr///W+74IILrFGjRu6X3jHHHGO9e/d2O2gigwcPdhmY96hdu7aFVXx1j+fUU08t8m3JVGpYJ/Xq1Uu43JvvrYfk1HBWTj/99ITLvfneekhMDRSladOmCZd78731kBzHd3CWZ/l+mdZEZeLEiTZu3DgbP368LViwwJ577jl78MEH3XMi/fv3d8VE3mPZsmUWVm+++WbC+e+8806Rb0umUut/UfFvIt58bz0kp949ojYAiXjzvfWQmBr8y9y5cxMu9+Z76yE5ju/g1Mzy/TKticpNN90ULVU54ogj7JJLLrE+ffq4kpNEypUr5+qy/I+wUdsTj1ellWjavx4SUxsetf5XMqs6az9Na/7+++9PW58CUBdkUf216rP9NP3yyy/HrIfE1NVT7SXUrk51/36aHjt2rFuu9ZA3ju/gnJ3l+2VaE5WNGzfmqptUMON32kziP6jUcFY9fO666y737DWkjV8PiWlfUBdF/RpQ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UHdPVo+cV1991b799ls3fdhhh7mbEZYqVaowbwcAABBMorJkyRI3vPEvv/xihxxySHQgNg2+9sYbb9BVFAAABCblqh+Nm3LQQQe5wdY0qqweS5cutXr16hXqXj8AAACBlahoULYPP/zQ3Z/Hoy7FQ4YMsebNm6f6dgAAAMGVqGgQGQ3WluguyGXLlk317QAAAIJLVM444wy76qqr7KOPPjL1bNZDJSw9e/Z0DWoBAADSlqjoXjxqMNu0aVN3M0E9VOWj+/wMGzYssA0DAABIuY3KnnvuaVOmTLHFixfbwoUL3bxDDz00pRsSAgAA7LZxVKRBgwbuAQAAkNZEpW/fvgV+w4cffnhXtgcAACC1ROXTTz+NmdbYKdu3b48O+Pbdd9+5UWmPO+64grwdAABAcInK7NmzY0pMKleubM8995zttddebt7q1autR48edvLJJxfsUwEAAHbH3ZNr1aplb731lru/j99XX31l7dq1s+XLl1tR4e7JAABknt1692S9+e+//55rvuYlGggOAACgsFJOVM4991xXzTNp0iR3Y0I9XnnlFbv88svtvPPOK/SGAAAA7HL35JEjR1q/fv3soosusm3btv3/Nyld2iUqDzzwQKpvBwAAEFwbFc9ff/1l33//vfu/RqqtWLGiFTXaqAAAkHlSuX4XesA3JSZHHnlkYV8OAACQr0IlKp988olNnDjRli5dalu3bo1ZprYrAAAAaWlMO2HCBGvWrJl9++23NnnyZNdO5euvv7Z33nnHFeMAAACkLVG577777JFHHrHXX3/dypYt6+6YrJsTdunSxerUqRPYhgEAAKScqKgBbceOHd3/laioUW2JEiWsT58+NmrUqN2xjQAAoJhKOVHRsPnewG4apVYj0sqaNWts48aNwW8hAAAotlJuTNuiRQubOXOmHXHEEda5c2e78cYbXfsUzWvduvXu2UoAAFAspZyoPPHEE7Z582b3/9tuu83KlCljH3zwgXXq1Mluv/323bGNAACgmCr0gG9hwIBvAABknt16U8JSpUrZqlWrcs3/888/3TIAAICgpJyoJCuA2bJli+sFBAAAUORtVB577DH3rK7Io0ePtkqVKkWX7dixw+bMmWONGjUKbMMAAAAKnKhokDevREV3UPZX86gkpW7dum4+/taqVatc83JyctKyLZmOWAaHWAaDOAaHWAanVRbG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UUn38e1p0aJFxlZJpiuObdu2dQnOmjVrovNeeeUV1z7GX72ULlT95OOUU06xzz77zBYvXuyKwZ577jnXOnry5Mn25JNPuhb7eqi4TC2z41tJe8uR3lhOmDDBrrjiCps4caK1adPGMlk646geBEcccYRdeeWV1qdPHxs4cKBlsqKOpaodP/nkE7v++uujr1Wvjs8//9z9/5133rFMFZZz5YknnmhLliyxTJWOOO6///7u/apWrRqdd+ihh7rqpl9++cXSjStoPipWrOjqAv3GjRtnBxxwgL366qsx89966y176KGH3IlH3ccQjlj+5z//scsuu8wlKx07drRMF5Z9Uu19dALNZEUdS3WR//LLL2Pm6eKjBEXtDZQIZqqw7Je6yOvCm6nSEcfmzZvbSy+9ZBs2bLBKlSq5ed99950bHkOfm24kKoUwZswYO//88+3www+PmV+7dm3r37+/zZgxY5cviDrYRDvO77//7qbVr75x48aWTXZ3LMePH2/dunWzYcOGWZMmTaLjK6iBmv/XQ6bb3XEcPny41alTxzXikzlz5tiDDz7oGu5lm90ZS5344993v/32s/Lly+eanw1293756KOPuuRO44hs3rzZRo8e7ZI+XcCzyZjdHEeN23X33Xdbjx49bNCgQfbHH3/YTTfd5H7g6VyZblT9pGj+/PmumLZTp065lunC17p1a7dT7apjjjnGPfR5utjq/6effrplk6KI5ahRo1zx6HXXXed+ZXmPG2+80bJFUcRRpSc6Iap3hXoHKHEZOnSo+yWXTYrq+C4OiiKW6g3zr3/9y1VHqgeaPm/WrFnuvbPF/CKIo0pRZs6caWvWrHHH98UXX2xnnnmmPfbYYxYGJdRQJd0bAQAAkAglKgAAILRIVNJA9akqakv0UKMpFByxDAZxDA6xDA6xDEamx5GqnzT4+eefbdu2bQmXVa9e3SpXrlzk25SpiGUwiGNwiGVwiGUwMj2OJCoAACC0qPoBAAChRaICAABCi0QFAACEFokKAAAILRIVAEWme/fuVqJECevZs2euZRo9WMu0DgB4SFQAFCndn0Q3iNSdYT26T4tuFaH7CQGAH4kKgCJ17LHHumRl0qRJ0Xn6v5IU3dPKf3+hwYMHu5vO6cZoRx11lLvDsGf16tXuniT77ruvW96gQQN75plnivz7ANi9SFQAFDndldWfVIwdO9bdudVPScrzzz9vI0eOtK+//tr69OljXbt2tXfffdctv+OOO+ybb76x6dOn27fffmsjRoywffbZp8i/C4DdiwHfABQZtT/RHVqffvppV6qyaNEiN79Ro0a2bNkyu+KKK2zPPfe0p556yqpVq+buhNu0adPo67V848aNrprorLPOcomJkhwA2at0ujcAQPGj6pqOHTvas88+a/qtpP/7S0OWLFniEpK2bdvGvG7r1q3R6qFrrrnGOnXqZAsWLLB27drZOeecY82aNSvy7wJg9yJRAZC26p/rr7/e/X/48OExyzZs2OCe33jjDatVq1bMsnLlyrnnDh06uHuYTJs2zWbOnGmtW7d2PYcefPDBIvsOAHY/EhUAaXHaaae5EhJ1SW7fvn3MssaNG7uEZOnSpdayZcs8S2a6devmHieffLLddNNNJCpAliFRAZAWpUqVco1gvf/76W6u/fr1cw1o1fvnpJNOsrVr19r7779vVapUcYnJnXfeaccdd5y7hf2WLVts6tSpduihh6bp2wDYXUhUAKSNko5k7r77bldiot4/P/zwg2tkq67Nt956q1tetmxZ69+/v/3000+ue7JKVDQ+C4DsQq8fAAAQWoyjAgAAQotEBQAAhBaJCgAACC0SFQAAEFokKgAAILRIVAAAQGiRqAAAgNAiUQEAAKFFogIAAEKLRAUAAIQWiQoAAAgtEhUAAGBh9f8AGJDYrYWuPLUAAAAASUVORK5CYII=",
+      "text/plain": [
+       "<Figure size 640x480 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "cols = ['PAY_1', 'PAY_2', 'PAY_3', 'PAY_4', 'PAY_5', 'PAY_6']\n",
+    "df_melt = df[cols].melt(var_name='Mes', value_name='Estado de pago')\n",
+    "\n",
+    "sns.boxplot(x='Mes', y='Estado de pago', data=df_melt, showfliers=True)\n",
+    "plt.title('Boxplot de estado de pago por mes (con outliers)')\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Puedo ver que los boxplot estan muy aplastados por lo que tengo muchos datos fuera de la caja\n",
+    "\n",
+    "Hago una linea de codigo para analizar cuantos outliers tengo"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 114,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "PAY_1: 6818 outliers\n",
+      "PAY_2: 4438 outliers\n",
+      "PAY_3: 4213 outliers\n",
+      "PAY_4: 3510 outliers\n",
+      "PAY_5: 2968 outliers\n",
+      "PAY_6: 3079 outliers\n"
+     ]
+    }
+   ],
+   "source": [
+    "def contar_outliers(col):\n",
+    "    q1 = np.percentile(col, 25)\n",
+    "    q3 = np.percentile(col, 75)\n",
+    "    iqr = q3 - q1\n",
+    "    lower = q1 - 1.5 * iqr\n",
+    "    upper = q3 + 1.5 * iqr\n",
+    "    return ((col < lower) | (col > upper)).sum()\n",
+    "\n",
+    "for c in cols:\n",
+    "    n_outliers = contar_outliers(df[c])\n",
+    "    print(f\"{c}: {n_outliers} outliers\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Veo que tengo bastantes, por lo que existen varios casos mas alla de pasado los 5 meses.\n",
+    "\n",
+    "Dejo entonces que la variable llegue hasta los 8 meses como el maximo de posible retraso en pagos."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 115,
    "metadata": {},
    "outputs": [
     {
@@ -900,7 +1602,7 @@
        "<Axes: >"
       ]
      },
-     "execution_count": 132,
+     "execution_count": 115,
      "metadata": {},
      "output_type": "execute_result"
     },
@@ -921,7 +1623,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 133,
+   "execution_count": 116,
    "metadata": {},
    "outputs": [
     {
@@ -930,7 +1632,7 @@
        "<Axes: >"
       ]
      },
-     "execution_count": 133,
+     "execution_count": 116,
      "metadata": {},
      "output_type": "execute_result"
     },
@@ -951,7 +1653,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 134,
+   "execution_count": 117,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/",
@@ -962,33 +1664,312 @@
    },
    "outputs": [
     {
-     "ename": "KeyError",
-     "evalue": "\"['PAY_0'] not in index\"",
-     "output_type": "error",
-     "traceback": [
-      "\u001b[31m---------------------------------------------------------------------------\u001b[39m",
-      "\u001b[31mKeyError\u001b[39m                                  Traceback (most recent call last)",
-      "\u001b[36mCell\u001b[39m\u001b[36m \u001b[39m\u001b[32mIn[134]\u001b[39m\u001b[32m, line 1\u001b[39m\n\u001b[32m----> \u001b[39m\u001b[32m1\u001b[39m \u001b[43mdf\u001b[49m\u001b[43m[\u001b[49m\u001b[43m[\u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mLIMIT_BAL\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m \u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mAGE\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_0\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\n\u001b[32m      2\u001b[39m \u001b[43m       \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_2\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_3\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_4\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_5\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_6\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mBILL_AMT1\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mBILL_AMT2\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\n\u001b[32m      3\u001b[39m \u001b[43m       \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mBILL_AMT3\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mBILL_AMT4\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mBILL_AMT5\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mBILL_AMT6\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_AMT1\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\n\u001b[32m      4\u001b[39m \u001b[43m       \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_AMT2\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_AMT3\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_AMT4\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_AMT5\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mPAY_AMT6\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m,\u001b[49m\n\u001b[32m      5\u001b[39m \u001b[43m       \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mdefault payment next month\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m]\u001b[49m\u001b[43m]\u001b[49m.describe()\n\u001b[32m      8\u001b[39m \u001b[38;5;66;03m#Ver outliers con media +- desvio estandar * 3\u001b[39;00m\n\u001b[32m      9\u001b[39m \n\u001b[32m     10\u001b[39m \u001b[38;5;66;03m#aplicar logaritmos\u001b[39;00m\n\u001b[32m   (...)\u001b[39m\u001b[32m     13\u001b[39m \n\u001b[32m     14\u001b[39m \u001b[38;5;66;03m#ordinal encoder\u001b[39;00m\n",
-      "\u001b[36mFile \u001b[39m\u001b[32mc:\\Users\\mateo\\OneDrive\\Desktop\\Trabajo Final FCE\\venv\\Lib\\site-packages\\pandas\\core\\frame.py:4113\u001b[39m, in \u001b[36mDataFrame.__getitem__\u001b[39m\u001b[34m(self, key)\u001b[39m\n\u001b[32m   4111\u001b[39m     \u001b[38;5;28;01mif\u001b[39;00m is_iterator(key):\n\u001b[32m   4112\u001b[39m         key = \u001b[38;5;28mlist\u001b[39m(key)\n\u001b[32m-> \u001b[39m\u001b[32m4113\u001b[39m     indexer = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43mcolumns\u001b[49m\u001b[43m.\u001b[49m\u001b[43m_get_indexer_strict\u001b[49m\u001b[43m(\u001b[49m\u001b[43mkey\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m\"\u001b[39;49m\u001b[33;43mcolumns\u001b[39;49m\u001b[33;43m\"\u001b[39;49m\u001b[43m)\u001b[49m[\u001b[32m1\u001b[39m]\n\u001b[32m   4115\u001b[39m \u001b[38;5;66;03m# take() does not accept boolean indexers\u001b[39;00m\n\u001b[32m   4116\u001b[39m \u001b[38;5;28;01mif\u001b[39;00m \u001b[38;5;28mgetattr\u001b[39m(indexer, \u001b[33m\"\u001b[39m\u001b[33mdtype\u001b[39m\u001b[33m\"\u001b[39m, \u001b[38;5;28;01mNone\u001b[39;00m) == \u001b[38;5;28mbool\u001b[39m:\n",
-      "\u001b[36mFile \u001b[39m\u001b[32mc:\\Users\\mateo\\OneDrive\\Desktop\\Trabajo Final FCE\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\base.py:6212\u001b[39m, in \u001b[36mIndex._get_indexer_strict\u001b[39m\u001b[34m(self, key, axis_name)\u001b[39m\n\u001b[32m   6209\u001b[39m \u001b[38;5;28;01melse\u001b[39;00m:\n\u001b[32m   6210\u001b[39m     keyarr, indexer, new_indexer = \u001b[38;5;28mself\u001b[39m._reindex_non_unique(keyarr)\n\u001b[32m-> \u001b[39m\u001b[32m6212\u001b[39m \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_raise_if_missing\u001b[49m\u001b[43m(\u001b[49m\u001b[43mkeyarr\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mindexer\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43maxis_name\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m   6214\u001b[39m keyarr = \u001b[38;5;28mself\u001b[39m.take(indexer)\n\u001b[32m   6215\u001b[39m \u001b[38;5;28;01mif\u001b[39;00m \u001b[38;5;28misinstance\u001b[39m(key, Index):\n\u001b[32m   6216\u001b[39m     \u001b[38;5;66;03m# GH 42790 - Preserve name from an Index\u001b[39;00m\n",
-      "\u001b[36mFile \u001b[39m\u001b[32mc:\\Users\\mateo\\OneDrive\\Desktop\\Trabajo Final FCE\\venv\\Lib\\site-packages\\pandas\\core\\indexes\\base.py:6264\u001b[39m, in \u001b[36mIndex._raise_if_missing\u001b[39m\u001b[34m(self, key, indexer, axis_name)\u001b[39m\n\u001b[32m   6261\u001b[39m     \u001b[38;5;28;01mraise\u001b[39;00m \u001b[38;5;167;01mKeyError\u001b[39;00m(\u001b[33mf\u001b[39m\u001b[33m\"\u001b[39m\u001b[33mNone of [\u001b[39m\u001b[38;5;132;01m{\u001b[39;00mkey\u001b[38;5;132;01m}\u001b[39;00m\u001b[33m] are in the [\u001b[39m\u001b[38;5;132;01m{\u001b[39;00maxis_name\u001b[38;5;132;01m}\u001b[39;00m\u001b[33m]\u001b[39m\u001b[33m\"\u001b[39m)\n\u001b[32m   6263\u001b[39m not_found = \u001b[38;5;28mlist\u001b[39m(ensure_index(key)[missing_mask.nonzero()[\u001b[32m0\u001b[39m]].unique())\n\u001b[32m-> \u001b[39m\u001b[32m6264\u001b[39m \u001b[38;5;28;01mraise\u001b[39;00m \u001b[38;5;167;01mKeyError\u001b[39;00m(\u001b[33mf\u001b[39m\u001b[33m\"\u001b[39m\u001b[38;5;132;01m{\u001b[39;00mnot_found\u001b[38;5;132;01m}\u001b[39;00m\u001b[33m not in index\u001b[39m\u001b[33m\"\u001b[39m)\n",
-      "\u001b[31mKeyError\u001b[39m: \"['PAY_0'] not in index\""
-     ]
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>LIMIT_BAL</th>\n",
+       "      <th>AGE</th>\n",
+       "      <th>PAY_1</th>\n",
+       "      <th>PAY_2</th>\n",
+       "      <th>PAY_3</th>\n",
+       "      <th>PAY_4</th>\n",
+       "      <th>PAY_5</th>\n",
+       "      <th>PAY_6</th>\n",
+       "      <th>BILL_AMT1</th>\n",
+       "      <th>BILL_AMT2</th>\n",
+       "      <th>...</th>\n",
+       "      <th>BILL_AMT4</th>\n",
+       "      <th>BILL_AMT5</th>\n",
+       "      <th>BILL_AMT6</th>\n",
+       "      <th>PAY_AMT1</th>\n",
+       "      <th>PAY_AMT2</th>\n",
+       "      <th>PAY_AMT3</th>\n",
+       "      <th>PAY_AMT4</th>\n",
+       "      <th>PAY_AMT5</th>\n",
+       "      <th>PAY_AMT6</th>\n",
+       "      <th>default payment next month</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>count</th>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.00000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>3.000000e+04</td>\n",
+       "      <td>30000.00000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "      <td>30000.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>mean</th>\n",
+       "      <td>167484.322667</td>\n",
+       "      <td>35.485500</td>\n",
+       "      <td>0.356767</td>\n",
+       "      <td>0.320033</td>\n",
+       "      <td>0.304067</td>\n",
+       "      <td>0.258767</td>\n",
+       "      <td>0.22150</td>\n",
+       "      <td>0.226567</td>\n",
+       "      <td>51223.330900</td>\n",
+       "      <td>49179.075167</td>\n",
+       "      <td>...</td>\n",
+       "      <td>43262.948967</td>\n",
+       "      <td>40311.400967</td>\n",
+       "      <td>38871.760400</td>\n",
+       "      <td>5663.580500</td>\n",
+       "      <td>5.921163e+03</td>\n",
+       "      <td>5225.68150</td>\n",
+       "      <td>4826.076867</td>\n",
+       "      <td>4799.387633</td>\n",
+       "      <td>5215.502567</td>\n",
+       "      <td>0.221200</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>std</th>\n",
+       "      <td>129747.661567</td>\n",
+       "      <td>9.217904</td>\n",
+       "      <td>0.760594</td>\n",
+       "      <td>0.801727</td>\n",
+       "      <td>0.790589</td>\n",
+       "      <td>0.761113</td>\n",
+       "      <td>0.71772</td>\n",
+       "      <td>0.715438</td>\n",
+       "      <td>73635.860576</td>\n",
+       "      <td>71173.768783</td>\n",
+       "      <td>...</td>\n",
+       "      <td>64332.856134</td>\n",
+       "      <td>60797.155770</td>\n",
+       "      <td>59554.107537</td>\n",
+       "      <td>16563.280354</td>\n",
+       "      <td>2.304087e+04</td>\n",
+       "      <td>17606.96147</td>\n",
+       "      <td>15666.159744</td>\n",
+       "      <td>15278.305679</td>\n",
+       "      <td>17777.465775</td>\n",
+       "      <td>0.415062</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>min</th>\n",
+       "      <td>10000.000000</td>\n",
+       "      <td>21.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.00000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>-165580.000000</td>\n",
+       "      <td>-69777.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>-170000.000000</td>\n",
+       "      <td>-81334.000000</td>\n",
+       "      <td>-339603.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000e+00</td>\n",
+       "      <td>0.00000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25%</th>\n",
+       "      <td>50000.000000</td>\n",
+       "      <td>28.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.00000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>3558.750000</td>\n",
+       "      <td>2984.750000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>2326.750000</td>\n",
+       "      <td>1763.000000</td>\n",
+       "      <td>1256.000000</td>\n",
+       "      <td>1000.000000</td>\n",
+       "      <td>8.330000e+02</td>\n",
+       "      <td>390.00000</td>\n",
+       "      <td>296.000000</td>\n",
+       "      <td>252.500000</td>\n",
+       "      <td>117.750000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>50%</th>\n",
+       "      <td>140000.000000</td>\n",
+       "      <td>34.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.00000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>22381.500000</td>\n",
+       "      <td>21200.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>19052.000000</td>\n",
+       "      <td>18104.500000</td>\n",
+       "      <td>17071.000000</td>\n",
+       "      <td>2100.000000</td>\n",
+       "      <td>2.009000e+03</td>\n",
+       "      <td>1800.00000</td>\n",
+       "      <td>1500.000000</td>\n",
+       "      <td>1500.000000</td>\n",
+       "      <td>1500.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75%</th>\n",
+       "      <td>240000.000000</td>\n",
+       "      <td>41.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>0.00000</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>67091.000000</td>\n",
+       "      <td>64006.250000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>54506.000000</td>\n",
+       "      <td>50190.500000</td>\n",
+       "      <td>49198.250000</td>\n",
+       "      <td>5006.000000</td>\n",
+       "      <td>5.000000e+03</td>\n",
+       "      <td>4505.00000</td>\n",
+       "      <td>4013.250000</td>\n",
+       "      <td>4031.500000</td>\n",
+       "      <td>4000.000000</td>\n",
+       "      <td>0.000000</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>max</th>\n",
+       "      <td>1000000.000000</td>\n",
+       "      <td>79.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>8.00000</td>\n",
+       "      <td>8.000000</td>\n",
+       "      <td>964511.000000</td>\n",
+       "      <td>983931.000000</td>\n",
+       "      <td>...</td>\n",
+       "      <td>891586.000000</td>\n",
+       "      <td>927171.000000</td>\n",
+       "      <td>961664.000000</td>\n",
+       "      <td>873552.000000</td>\n",
+       "      <td>1.684259e+06</td>\n",
+       "      <td>896040.00000</td>\n",
+       "      <td>621000.000000</td>\n",
+       "      <td>426529.000000</td>\n",
+       "      <td>528666.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>8 rows × 21 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "            LIMIT_BAL           AGE         PAY_1         PAY_2         PAY_3  \\\n",
+       "count    30000.000000  30000.000000  30000.000000  30000.000000  30000.000000   \n",
+       "mean    167484.322667     35.485500      0.356767      0.320033      0.304067   \n",
+       "std     129747.661567      9.217904      0.760594      0.801727      0.790589   \n",
+       "min      10000.000000     21.000000      0.000000      0.000000      0.000000   \n",
+       "25%      50000.000000     28.000000      0.000000      0.000000      0.000000   \n",
+       "50%     140000.000000     34.000000      0.000000      0.000000      0.000000   \n",
+       "75%     240000.000000     41.000000      0.000000      0.000000      0.000000   \n",
+       "max    1000000.000000     79.000000      8.000000      8.000000      8.000000   \n",
+       "\n",
+       "              PAY_4        PAY_5         PAY_6      BILL_AMT1      BILL_AMT2  \\\n",
+       "count  30000.000000  30000.00000  30000.000000   30000.000000   30000.000000   \n",
+       "mean       0.258767      0.22150      0.226567   51223.330900   49179.075167   \n",
+       "std        0.761113      0.71772      0.715438   73635.860576   71173.768783   \n",
+       "min        0.000000      0.00000      0.000000 -165580.000000  -69777.000000   \n",
+       "25%        0.000000      0.00000      0.000000    3558.750000    2984.750000   \n",
+       "50%        0.000000      0.00000      0.000000   22381.500000   21200.000000   \n",
+       "75%        0.000000      0.00000      0.000000   67091.000000   64006.250000   \n",
+       "max        8.000000      8.00000      8.000000  964511.000000  983931.000000   \n",
+       "\n",
+       "       ...      BILL_AMT4      BILL_AMT5      BILL_AMT6       PAY_AMT1  \\\n",
+       "count  ...   30000.000000   30000.000000   30000.000000   30000.000000   \n",
+       "mean   ...   43262.948967   40311.400967   38871.760400    5663.580500   \n",
+       "std    ...   64332.856134   60797.155770   59554.107537   16563.280354   \n",
+       "min    ... -170000.000000  -81334.000000 -339603.000000       0.000000   \n",
+       "25%    ...    2326.750000    1763.000000    1256.000000    1000.000000   \n",
+       "50%    ...   19052.000000   18104.500000   17071.000000    2100.000000   \n",
+       "75%    ...   54506.000000   50190.500000   49198.250000    5006.000000   \n",
+       "max    ...  891586.000000  927171.000000  961664.000000  873552.000000   \n",
+       "\n",
+       "           PAY_AMT2      PAY_AMT3       PAY_AMT4       PAY_AMT5  \\\n",
+       "count  3.000000e+04   30000.00000   30000.000000   30000.000000   \n",
+       "mean   5.921163e+03    5225.68150    4826.076867    4799.387633   \n",
+       "std    2.304087e+04   17606.96147   15666.159744   15278.305679   \n",
+       "min    0.000000e+00       0.00000       0.000000       0.000000   \n",
+       "25%    8.330000e+02     390.00000     296.000000     252.500000   \n",
+       "50%    2.009000e+03    1800.00000    1500.000000    1500.000000   \n",
+       "75%    5.000000e+03    4505.00000    4013.250000    4031.500000   \n",
+       "max    1.684259e+06  896040.00000  621000.000000  426529.000000   \n",
+       "\n",
+       "            PAY_AMT6  default payment next month  \n",
+       "count   30000.000000                30000.000000  \n",
+       "mean     5215.502567                    0.221200  \n",
+       "std     17777.465775                    0.415062  \n",
+       "min         0.000000                    0.000000  \n",
+       "25%       117.750000                    0.000000  \n",
+       "50%      1500.000000                    0.000000  \n",
+       "75%      4000.000000                    0.000000  \n",
+       "max    528666.000000                    1.000000  \n",
+       "\n",
+       "[8 rows x 21 columns]"
+      ]
+     },
+     "execution_count": 117,
+     "metadata": {},
+     "output_type": "execute_result"
     }
    ],
    "source": [
-    "df[['LIMIT_BAL' , 'AGE', 'PAY_0',\n",
+    "df[['LIMIT_BAL' , 'AGE', 'PAY_1',\n",
     "       'PAY_2', 'PAY_3', 'PAY_4', 'PAY_5', 'PAY_6', 'BILL_AMT1', 'BILL_AMT2',\n",
     "       'BILL_AMT3', 'BILL_AMT4', 'BILL_AMT5', 'BILL_AMT6', 'PAY_AMT1',\n",
     "       'PAY_AMT2', 'PAY_AMT3', 'PAY_AMT4', 'PAY_AMT5', 'PAY_AMT6',\n",
     "       'default payment next month']].describe()\n",
-    "\n",
-    "\n",
-    "#Ver outliers con media +- desvio estandar * 3\n",
-    "\n",
-    "#aplicar logaritmos\n",
-    "\n",
-    "#para grficos usar muestreo\n",
     "\n",
     "#ordinal encoder"
    ]
@@ -999,7 +1980,7 @@
     "id": "LIvp-dSOCIRC"
    },
    "source": [
-    "Podemos observar que la media estadistica de **\"Default payment next month\"** es de 0,22, es decir que la probabilidades de que una persona devuelva el credito adquirido es de aproximadamente de 2 cada 10."
+    "Podemos observar que la media estadistica de **\"Default payment next month\"** es de 0,22, es decir que la probabilidades de que una persona no devuelva el credito adquirido es de aproximadamente de 2 cada 10."
    ]
   },
   {
@@ -1013,13 +1994,13 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 118,
    "metadata": {
     "id": "jfddFvqvjSUk"
    },
    "outputs": [],
    "source": [
-    "df = df[['LIMIT_BAL', 'SEX', 'EDUCATION', 'MARRIAGE', 'AGE', 'PAY_0',\n",
+    "df = df[['LIMIT_BAL', 'SEX', 'EDUCATION', 'MARRIAGE', 'AGE', 'PAY_1',\n",
     "       'PAY_2', 'PAY_3', 'PAY_4', 'PAY_5', 'PAY_6', 'BILL_AMT1', 'BILL_AMT2',\n",
     "       'BILL_AMT3', 'BILL_AMT4', 'BILL_AMT5', 'BILL_AMT6', 'PAY_AMT1',\n",
     "       'PAY_AMT2', 'PAY_AMT3', 'PAY_AMT4', 'PAY_AMT5', 'PAY_AMT6',\n",
@@ -1028,23 +2009,23 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 119,
    "metadata": {
     "id": "e8JJ_Ia1awzg"
    },
    "outputs": [],
    "source": [
-    "X = df[['LIMIT_BAL', 'SEX', 'EDUCATION', 'MARRIAGE', 'AGE', 'PAY_0',\n",
+    "X = df[['LIMIT_BAL', 'SEX', 'EDUCATION', 'MARRIAGE', 'AGE', 'PAY_1',\n",
     "       'PAY_2', 'PAY_3', 'PAY_4', 'PAY_5', 'PAY_6', 'BILL_AMT1', 'BILL_AMT2',\n",
     "       'BILL_AMT3', 'BILL_AMT4', 'BILL_AMT5', 'BILL_AMT6', 'PAY_AMT1',\n",
-    "       'PAY_AMT2', 'PAY_AMT3', 'PAY_AMT4', 'PAY_AMT5', 'PAY_AMT6',]]\n",
+    "       'PAY_AMT2', 'PAY_AMT3', 'PAY_AMT4', 'PAY_AMT5', 'PAY_AMT6']]\n",
     "\n",
     "y = df[['default payment next month']]"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 120,
    "metadata": {
     "id": "nz3YbVDEcv5r"
    },
@@ -1074,7 +2055,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 121,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/",
@@ -1820,7 +2801,7 @@
        "RandomForestClassifier(max_depth=4, random_state=42)"
       ]
      },
-     "execution_count": 92,
+     "execution_count": 121,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1832,7 +2813,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 122,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/"
@@ -1844,10 +2825,10 @@
     {
      "data": {
       "text/plain": [
-       "0.8145"
+       "0.8153333333333334"
       ]
      },
-     "execution_count": 93,
+     "execution_count": 122,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -1889,7 +2870,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 123,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/",
@@ -2524,8 +3505,8 @@
        "                </table>\n",
        "            </details>\n",
        "        </div>\n",
-       "    </div></div></div><div class=\"sk-parallel\"><div class=\"sk-parallel-item\"><div class=\"sk-item\"><div class=\"sk-label-container\"><div class=\"sk-label fitted sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-17\" type=\"checkbox\" ><label for=\"sk-estimator-id-17\" class=\"sk-toggleable__label fitted sk-toggleable__label-arrow\"><div><div>best_estimator_: RandomForestClassifier</div></div></label><div class=\"sk-toggleable__content fitted\" data-param-prefix=\"best_estimator___\"><pre>RandomForestClassifier(criterion=&#x27;entropy&#x27;, max_depth=7, min_samples_leaf=2,\n",
-       "                       min_samples_split=5, random_state=42)</pre></div></div></div><div class=\"sk-serial\"><div class=\"sk-item\"><div class=\"sk-estimator fitted sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-18\" type=\"checkbox\" ><label for=\"sk-estimator-id-18\" class=\"sk-toggleable__label fitted sk-toggleable__label-arrow\"><div><div>RandomForestClassifier</div></div><div><a class=\"sk-estimator-doc-link fitted\" rel=\"noreferrer\" target=\"_blank\" href=\"https://scikit-learn.org/1.7/modules/generated/sklearn.ensemble.RandomForestClassifier.html\">?<span>Documentation for RandomForestClassifier</span></a></div></label><div class=\"sk-toggleable__content fitted\" data-param-prefix=\"best_estimator___\">\n",
+       "    </div></div></div><div class=\"sk-parallel\"><div class=\"sk-parallel-item\"><div class=\"sk-item\"><div class=\"sk-label-container\"><div class=\"sk-label fitted sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-17\" type=\"checkbox\" ><label for=\"sk-estimator-id-17\" class=\"sk-toggleable__label fitted sk-toggleable__label-arrow\"><div><div>best_estimator_: RandomForestClassifier</div></div></label><div class=\"sk-toggleable__content fitted\" data-param-prefix=\"best_estimator___\"><pre>RandomForestClassifier(max_depth=7, min_samples_leaf=2, min_samples_split=5,\n",
+       "                       random_state=42)</pre></div></div></div><div class=\"sk-serial\"><div class=\"sk-item\"><div class=\"sk-estimator fitted sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-18\" type=\"checkbox\" ><label for=\"sk-estimator-id-18\" class=\"sk-toggleable__label fitted sk-toggleable__label-arrow\"><div><div>RandomForestClassifier</div></div><div><a class=\"sk-estimator-doc-link fitted\" rel=\"noreferrer\" target=\"_blank\" href=\"https://scikit-learn.org/1.7/modules/generated/sklearn.ensemble.RandomForestClassifier.html\">?<span>Documentation for RandomForestClassifier</span></a></div></label><div class=\"sk-toggleable__content fitted\" data-param-prefix=\"best_estimator___\">\n",
        "        <div class=\"estimator-table\">\n",
        "            <details>\n",
        "                <summary>Parameters</summary>\n",
@@ -2542,13 +3523,13 @@
        "        </tr>\n",
        "    \n",
        "\n",
-       "        <tr class=\"user-set\">\n",
+       "        <tr class=\"default\">\n",
        "            <td><i class=\"copy-paste-icon\"\n",
        "                 onclick=\"copyToClipboard('criterion',\n",
        "                          this.parentElement.nextElementSibling)\"\n",
        "            ></i></td>\n",
        "            <td class=\"param\">criterion&nbsp;</td>\n",
-       "            <td class=\"value\">&#x27;entropy&#x27;</td>\n",
+       "            <td class=\"value\">&#x27;gini&#x27;</td>\n",
        "        </tr>\n",
        "    \n",
        "\n",
@@ -2780,7 +3761,7 @@
        "                   refit='accuracy', scoring=['accuracy', 'f1'])"
       ]
      },
-     "execution_count": 94,
+     "execution_count": 123,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2805,7 +3786,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 124,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/"
@@ -2817,10 +3798,10 @@
     {
      "data": {
       "text/plain": [
-       "0.8203333333333334"
+       "0.8196666666666667"
       ]
      },
-     "execution_count": 95,
+     "execution_count": 124,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -2847,7 +3828,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 125,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/",
@@ -3482,7 +4463,8 @@
        "                </table>\n",
        "            </details>\n",
        "        </div>\n",
-       "    </div></div></div><div class=\"sk-parallel\"><div class=\"sk-parallel-item\"><div class=\"sk-item\"><div class=\"sk-label-container\"><div class=\"sk-label fitted sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-20\" type=\"checkbox\" ><label for=\"sk-estimator-id-20\" class=\"sk-toggleable__label fitted sk-toggleable__label-arrow\"><div><div>best_estimator_: RandomForestClassifier</div></div></label><div class=\"sk-toggleable__content fitted\" data-param-prefix=\"best_estimator___\"><pre>RandomForestClassifier(criterion=&#x27;entropy&#x27;, max_depth=7, random_state=42)</pre></div></div></div><div class=\"sk-serial\"><div class=\"sk-item\"><div class=\"sk-estimator fitted sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-21\" type=\"checkbox\" ><label for=\"sk-estimator-id-21\" class=\"sk-toggleable__label fitted sk-toggleable__label-arrow\"><div><div>RandomForestClassifier</div></div><div><a class=\"sk-estimator-doc-link fitted\" rel=\"noreferrer\" target=\"_blank\" href=\"https://scikit-learn.org/1.7/modules/generated/sklearn.ensemble.RandomForestClassifier.html\">?<span>Documentation for RandomForestClassifier</span></a></div></label><div class=\"sk-toggleable__content fitted\" data-param-prefix=\"best_estimator___\">\n",
+       "    </div></div></div><div class=\"sk-parallel\"><div class=\"sk-parallel-item\"><div class=\"sk-item\"><div class=\"sk-label-container\"><div class=\"sk-label fitted sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-20\" type=\"checkbox\" ><label for=\"sk-estimator-id-20\" class=\"sk-toggleable__label fitted sk-toggleable__label-arrow\"><div><div>best_estimator_: RandomForestClassifier</div></div></label><div class=\"sk-toggleable__content fitted\" data-param-prefix=\"best_estimator___\"><pre>RandomForestClassifier(criterion=&#x27;entropy&#x27;, max_depth=7, min_samples_split=10,\n",
+       "                       random_state=42)</pre></div></div></div><div class=\"sk-serial\"><div class=\"sk-item\"><div class=\"sk-estimator fitted sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-21\" type=\"checkbox\" ><label for=\"sk-estimator-id-21\" class=\"sk-toggleable__label fitted sk-toggleable__label-arrow\"><div><div>RandomForestClassifier</div></div><div><a class=\"sk-estimator-doc-link fitted\" rel=\"noreferrer\" target=\"_blank\" href=\"https://scikit-learn.org/1.7/modules/generated/sklearn.ensemble.RandomForestClassifier.html\">?<span>Documentation for RandomForestClassifier</span></a></div></label><div class=\"sk-toggleable__content fitted\" data-param-prefix=\"best_estimator___\">\n",
        "        <div class=\"estimator-table\">\n",
        "            <details>\n",
        "                <summary>Parameters</summary>\n",
@@ -3519,13 +4501,13 @@
        "        </tr>\n",
        "    \n",
        "\n",
-       "        <tr class=\"default\">\n",
+       "        <tr class=\"user-set\">\n",
        "            <td><i class=\"copy-paste-icon\"\n",
        "                 onclick=\"copyToClipboard('min_samples_split',\n",
        "                          this.parentElement.nextElementSibling)\"\n",
        "            ></i></td>\n",
        "            <td class=\"param\">min_samples_split&nbsp;</td>\n",
-       "            <td class=\"value\">2</td>\n",
+       "            <td class=\"value\">10</td>\n",
        "        </tr>\n",
        "    \n",
        "\n",
@@ -3737,7 +4719,7 @@
        "                   refit='accuracy', scoring=['accuracy', 'f1'])"
       ]
      },
-     "execution_count": 96,
+     "execution_count": 125,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3757,14 +4739,14 @@
     "\n",
     "rf_optimizado_regresion_grid = RandomizedSearchCV(rf_optimizado, parametros, cv=5, n_jobs=-1, scoring=[\"accuracy\", \"f1\"], refit='accuracy')\n",
     "\n",
-    "#No usar accuracy\n",
+    "#Usar F1 Y AUC ROC CURVE\n",
     "\n",
     "rf_optimizado_regresion_grid.fit(X_train, y_train)"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": null,
+   "execution_count": 126,
    "metadata": {
     "colab": {
      "base_uri": "https://localhost:8080/"
@@ -3776,10 +4758,10 @@
     {
      "data": {
       "text/plain": [
-       "0.8206666666666667"
+       "0.8203333333333334"
       ]
      },
-     "execution_count": 97,
+     "execution_count": 126,
      "metadata": {},
      "output_type": "execute_result"
     }
@@ -3798,40 +4780,6 @@
    ]
   },
   {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {
-    "colab": {
-     "base_uri": "https://localhost:8080/",
-     "height": 287
-    },
-    "collapsed": true,
-    "id": "5B-cA64tipEH",
-    "jupyter": {
-     "outputs_hidden": true
-    },
-    "outputId": "05b4983a-c431-458b-ffdb-d5ff39dd44cf"
-   },
-   "outputs": [
-    {
-     "ename": "KeyError",
-     "evalue": "'rank_test_score'",
-     "output_type": "error",
-     "traceback": [
-      "\u001b[31m---------------------------------------------------------------------------\u001b[39m",
-      "\u001b[31mKeyError\u001b[39m                                  Traceback (most recent call last)",
-      "\u001b[32m~\\AppData\\Local\\Temp\\ipykernel_7244\\2511377000.py\u001b[39m in \u001b[36m?\u001b[39m\u001b[34m()\u001b[39m\n\u001b[32m----> \u001b[39m\u001b[32m1\u001b[39m pd.DataFrame(rf_optimizado_grid.cv_results_).sort_values(by=\u001b[33m'rank_test_score'\u001b[39m)\n",
-      "\u001b[32mc:\\Users\\mateo\\OneDrive\\Desktop\\Trabajo Final FCE\\venv\\Lib\\site-packages\\pandas\\core\\frame.py\u001b[39m in \u001b[36m?\u001b[39m\u001b[34m(self, by, axis, ascending, inplace, kind, na_position, ignore_index, key)\u001b[39m\n\u001b[32m   7192\u001b[39m             )\n\u001b[32m   7193\u001b[39m         \u001b[38;5;28;01melif\u001b[39;00m len(by):\n\u001b[32m   7194\u001b[39m             \u001b[38;5;66;03m# len(by) == 1\u001b[39;00m\n\u001b[32m   7195\u001b[39m \n\u001b[32m-> \u001b[39m\u001b[32m7196\u001b[39m             k = self._get_label_or_level_values(by[\u001b[32m0\u001b[39m], axis=axis)\n\u001b[32m   7197\u001b[39m \n\u001b[32m   7198\u001b[39m             \u001b[38;5;66;03m# need to rewrap column in Series to apply key function\u001b[39;00m\n\u001b[32m   7199\u001b[39m             \u001b[38;5;28;01mif\u001b[39;00m key \u001b[38;5;28;01mis\u001b[39;00m \u001b[38;5;28;01mnot\u001b[39;00m \u001b[38;5;28;01mNone\u001b[39;00m:\n",
-      "\u001b[32mc:\\Users\\mateo\\OneDrive\\Desktop\\Trabajo Final FCE\\venv\\Lib\\site-packages\\pandas\\core\\generic.py\u001b[39m in \u001b[36m?\u001b[39m\u001b[34m(self, key, axis)\u001b[39m\n\u001b[32m   1907\u001b[39m             values = self.xs(key, axis=other_axes[\u001b[32m0\u001b[39m])._values\n\u001b[32m   1908\u001b[39m         \u001b[38;5;28;01melif\u001b[39;00m self._is_level_reference(key, axis=axis):\n\u001b[32m   1909\u001b[39m             values = self.axes[axis].get_level_values(key)._values\n\u001b[32m   1910\u001b[39m         \u001b[38;5;28;01melse\u001b[39;00m:\n\u001b[32m-> \u001b[39m\u001b[32m1911\u001b[39m             \u001b[38;5;28;01mraise\u001b[39;00m KeyError(key)\n\u001b[32m   1912\u001b[39m \n\u001b[32m   1913\u001b[39m         \u001b[38;5;66;03m# Check for duplicates\u001b[39;00m\n\u001b[32m   1914\u001b[39m         \u001b[38;5;28;01mif\u001b[39;00m values.ndim > \u001b[32m1\u001b[39m:\n",
-      "\u001b[31mKeyError\u001b[39m: 'rank_test_score'"
-     ]
-    }
-   ],
-   "source": [
-    "pd.DataFrame(rf_optimizado_grid.cv_results_).sort_values(by='rank_test_score')"
-   ]
-  },
-  {
    "cell_type": "markdown",
    "metadata": {
     "id": "iLKDT5NKn9fd"
@@ -3841,40 +4789,24 @@
    ]
   },
   {
-   "cell_type": "markdown",
-   "metadata": {
-    "id": "E4KDnHYHl-mB"
-   },
-   "source": [
-    "# Pruebo con XGBOOST"
-   ]
-  },
-  {
    "cell_type": "code",
-   "execution_count": null,
-   "metadata": {
-    "id": "CcewYRYqmiN-"
-   },
-   "outputs": [],
-   "source": []
-  },
-  {
-   "cell_type": "markdown",
-   "metadata": {
-    "id": "KDemWXybDEYE"
-   },
+   "execution_count": 127,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "['C:/Users/mateo/OneDrive/Desktop/Trabajo Final FCE/rf_best.joblib']"
+      ]
+     },
+     "execution_count": 127,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
    "source": [
-    "# Pruebo tambien de hacerlo con una Regresion Logistica\n"
+    "joblib.dump(rf_best, 'C:/Users/mateo/OneDrive/Desktop/Trabajo Final FCE/rf_best.joblib')"
    ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "metadata": {
-    "id": "guibUoI2DNV0"
-   },
-   "outputs": [],
-   "source": []
   }
  ],
  "metadata": {
@@ -3902,37 +4834,3 @@
  "nbformat": 4,
  "nbformat_minor": 4
 }
-
-
-st.set_page_config(page_title="Análisis de Default", layout="wide")
-
-# Título
-st.title("Análisis de Tarjetas de Crédito")
-
-# Carga de datos
-@st.cache_data
-def cargar_datos():
-    return df
-
-df = cargar_datos()
-
-# Vista previa
-st.subheader("Vista previa de los datos")
-st.dataframe(df.head())
-
-# Estadísticas generales
-st.subheader("Estadísticas generales")
-st.write(df.describe())
-
-# Análisis de variables PAY_1 a PAY_6
-st.subheader("Distribución de pagos")
-col = st.selectbox("Seleccioná una variable de pago:", ['PAY_1', 'PAY_2', 'PAY_3', 'PAY_4', 'PAY_5', 'PAY_6'])
-
-fig, ax = plt.subplots()
-sns.histplot(df[col], kde=False, bins=10, ax=ax)
-ax.set_title(f"Histograma de {col}")
-st.pyplot(fig)
-
-# Valor por defecto
-st.subheader("Proporción de clientes con default")
-st.bar_chart(df['default payment next month'].value_counts(normalize=True))

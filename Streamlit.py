@@ -23,16 +23,16 @@ estado_civil = st.selectbox("Estado civil", list(estado_civil_dict.keys()))
 edad = st.slider("Edad", 18, 100)
 
 # Inputs de comportamiento de pago
-st.markdown("### Comportamiento de pago (PAY_X) entre 0 y 8")
-pay_1 = st.selectbox("PAY_1", [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
-pay_2 = st.selectbox("PAY_2", [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
-pay_3 = st.selectbox("PAY_3", [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
-pay_4 = st.selectbox("PAY_4", [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
-pay_5 = st.selectbox("PAY_5", [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
-pay_6 = st.selectbox("PAY_6", [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
+st.markdown("### Comportamiento de pago (PAY_X) X= Meses de atraso")
+pay_1 = st.selectbox("PAY_1", [ 0, 1, 2, 3, 4, 5, 6, 7, 8])
+pay_2 = st.selectbox("PAY_2", [ 0, 1, 2, 3, 4, 5, 6, 7, 8])
+pay_3 = st.selectbox("PAY_3", [ 0, 1, 2, 3, 4, 5, 6, 7, 8])
+pay_4 = st.selectbox("PAY_4", [ 0, 1, 2, 3, 4, 5, 6, 7, 8])
+pay_5 = st.selectbox("PAY_5", [ 0, 1, 2, 3, 4, 5, 6, 7, 8])
+pay_6 = st.selectbox("PAY_6", [ 0, 1, 2, 3, 4, 5, 6, 7, 8])
 
 # Inputs de montos facturados
-st.markdown("### Monto de facturas (BILL_AMT) entre -400.000 y 1.000.000")
+st.markdown("### Resumen de la tarjeta (BILL_AMT) entre -400.000 y 1.000.000")
 bill_amt1 = st.number_input("BILL_AMT1", step=100.0)
 bill_amt2 = st.number_input("BILL_AMT2", step=100.0)
 bill_amt3 = st.number_input("BILL_AMT3", step=100.0)
@@ -77,10 +77,13 @@ if st.button("Predecir"):
         'PAY_AMT6': pay_amt6,
     }])
 
-    pred = modelo.predict(input_df)[0]
+proba = modelo.predict_proba(input_df)[0]  # devuelve [P(clase 0), P(clase 1)]
+pred = modelo.predict(input_df)[0]
 
-    if pred == 1:
-        st.error("⚠️ Este cliente probablemente hará default el próximo mes.")
-    else:
-        st.success("✅ Este cliente probablemente no hará default.")
+# Mostrar resultado con probabilidad
+if pred == 1:
+    st.error(f"⚠️ Este cliente probablemente hará default el próximo mes.\n\nProbabilidad: {proba[1]*100:.2f}%")
+else:
+    st.success(f"✅ Este cliente probablemente no hará default.\n\nProbabilidad: {proba[0]*100:.2f}%")
+
 
